@@ -123,32 +123,66 @@ def CaculateAcc(predictions, labels):
     # 确保 predictions 和 labels 都在相同的设备上
     device = predictions.device
     labels = labels.to(device)
-    
-    # 确保 predictions 的形状是 [batch_size, num_classes, height, width]
     if predictions.dim() != 4:
         raise ValueError(f"predictions 的维度应该是 4，但实际是 {predictions.dim()}")
-    
-    # 确保 labels 的形状是 [batch_size, num_classes, height, width]
     if labels.dim() != 4:
         raise ValueError(f"labels 的维度应该是 4，但实际是 {labels.dim()}")
-
-    # 将 one-hot 编码的 labels 转换为类索引形式
     labels = torch.argmax(labels, dim=1)  # labels 的新形状为 [batch_size, height, width]
-    
-    # 预测类别
     _, predicted = torch.max(predictions, 1)  # predicted 的形状为 [batch_size, height, width]
-    
-    # 计算正确分类的像素数
     correct_pixels = (predicted == labels).sum().item()
-    
-    # 计算标签的总像素数
     total_pixels = labels.numel()
-    
-    # 计算精度
     accuracy = correct_pixels / total_pixels
     
     return accuracy
-    
+
+def CalculateMiou(predictions, labels, num_classes):
+    """
+    计算语义分割的 mIoU（mean Intersection over Union）
+
+    参数:
+    - predictions (Tensor): 模型输出，形状为 [batch_size, num_classes, height, width]
+    - labels (Tensor): 真实标签，形状为 [batch_size, num_classes, height, width] (one-hot 编码)
+    - num_classes (int): 类别总数
+
+    返回:
+    - miou (float): mean IoU，取值范围 [0, 1]
+    """
+    # 确保 predictions 和 labels 都在相同的设备上
+    device = predictions.device
+    labels = labels.to(device)
+
+    if predictions.dim() != 4:
+        raise ValueError(f"predictions 的维度应该是 4，但实际是 {predictions.dim()}")
+    if labels.dim() != 4:
+        raise ValueError(f"labels 的维度应该是 4，但实际是 {labels.dim()}")
+
+    # 将 predictions 转换为类别标签
+    _, predicted = torch.max(predictions, dim=1)  # predicted 的形状为 [batch_size, height, width]
+
+    # 将 one-hot 编码的 labels 转换为类别标签
+    labels = torch.argmax(labels, dim=1)  # labels 的形状为 [batch_size, height, width]
+
+    # 计算每个类别的 IoU
+    ious = []
+    for cls in range(num_classes):
+        # 计算每个类别的 Intersection 和 Union
+        intersection = ((predicted == cls) & (labels == cls)).sum().item()
+        union = ((predicted == cls) | (labels == cls)).sum().item()
+
+        # 避免除以 0 的情况
+        if union == 0:
+            iou = float('nan')  # 类别在预测和标签中都不存在
+        else:
+            iou = intersection / union
+
+        ious.append(iou)
+
+    # 计算 mean IoU（忽略 NaN）
+    ious = [iou for iou in ious if not torch.isnan(torch.tensor(iou))]
+    miou = sum(ious) / len(ious) if ious else float('nan')
+
+    return miou
+   
 def load_and_cache_withlabel(data_path,label_path,cache_file,shuffle=False):
     if cache_file is not None and os.path.exists(cache_file):
         print("Loading features from cached file ", cache_file)

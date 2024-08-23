@@ -7,7 +7,7 @@ import torch.nn as nn
 
 os.chdir(sys.path[0])
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-from model.unet import UNet
+from model.unet import UNet,UNet_Se,UNet_Atten,UNet_Se_Atten,UNet_Se_Atten_Trans,SegNet
 from torch.utils.data import (DataLoader)
 from datetime import datetime
 from model.utils import StrawDataset,load_and_cache_withlabel,get_linear_schedule_with_warmup,PrintModelInfo,CaculateAcc
@@ -16,13 +16,14 @@ try:
 except:
     from tensorboardX import SummaryWriter
     
-BATCH_SIZE=1
+BATCH_SIZE=30
 EPOCH=100
 LR=1e-5
 TENSORBOARDSTEP=500
 SAVE_MODEL='./output/output_model/'
-MODEL_NAME="UNet_Atten.pth"
-PRETRAINED_MODEL_PATH=f"./output/output_model/{MODEL_NAME}"
+MODEL_NAME="SegNet.pth"
+# PRETRAINED_MODEL_PATH=f"./output/output_model/UNet_trans_Separable.pth"
+PRETRAINED_MODEL_PATH=f" "
 Pretrain=False if PRETRAINED_MODEL_PATH ==" " else True
 DEVICE=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 TF_ENABLE_ONEDNN_OPTS=0
@@ -49,7 +50,8 @@ def CreateDataloader(image_path,label_path,cached_file):
 def main():
     global_step=0
     """Define Model"""
-    model=UNet(3,4).to(DEVICE)
+    # model=UNet(3,4).to(DEVICE)
+    model=SegNet().to(DEVICE)
     PrintModelInfo(model)
     """Pretrain"""
     if Pretrain:
@@ -73,7 +75,7 @@ def main():
     print("  Batch size per node = ", BATCH_SIZE)
     print("  Num examples = ", dataloader_train.sampler.data_source.num_instances)
     print(f"  Pretrained Model is ")
-    print(f"  Save Model as {SAVE_MODEL}")
+    print(f"  Save Model as {SAVE_MODEL+MODEL_NAME}")
     print("  ****************************************************************")
     start_time=datetime.now()
     for epoch_index in range(EPOCH):
