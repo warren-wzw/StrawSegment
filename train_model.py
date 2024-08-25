@@ -6,24 +6,27 @@ import tqdm
 import torch.nn as nn
 
 os.chdir(sys.path[0])
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-from model.unet import UNet,UNet_Se,UNet_Atten,UNet_Se_Atten,UNet_Se_Atten_Trans,SegNet
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+from model.unet import UNet,UNet_Se,UNet_Atten,UNet_Se_Atten,UNet_Se_Atten_Trans,UNet_Atten_Trans
+from model.unet import UNet2,UNet2_se,UNet2_Atten,UNet2_se_Atten,UNet2_se_Atten_Trans,UNet2_Atten_Trans
+from model.SegNet import SegNet
+from model.DDRNet import DualResNet,BasicBlock
 from torch.utils.data import (DataLoader)
 from datetime import datetime
-from model.utils import StrawDataset,load_and_cache_withlabel,get_linear_schedule_with_warmup,PrintModelInfo,CaculateAcc
+from model.utils import StrawDataset,load_and_cache_withlabel,get_linear_schedule_with_warmup,PrintModelInfo,CaculateAcc,CalculateMiou
 try:
     from torch.utils.tensorboard import SummaryWriter
 except:
     from tensorboardX import SummaryWriter
     
-BATCH_SIZE=30
+BATCH_SIZE=25
 EPOCH=100
 LR=1e-5
 TENSORBOARDSTEP=500
 SAVE_MODEL='./output/output_model/'
-MODEL_NAME="SegNet.pth"
-# PRETRAINED_MODEL_PATH=f"./output/output_model/UNet_trans_Separable.pth"
+MODEL_NAME="UNet2_se_Atten_Trans.pth"
 PRETRAINED_MODEL_PATH=f" "
+PRETRAINED_MODEL_PATH=f"./output/output_model/UNet2_se_Atten.pth"
 Pretrain=False if PRETRAINED_MODEL_PATH ==" " else True
 DEVICE=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 TF_ENABLE_ONEDNN_OPTS=0
@@ -50,8 +53,10 @@ def CreateDataloader(image_path,label_path,cached_file):
 def main():
     global_step=0
     """Define Model"""
-    # model=UNet(3,4).to(DEVICE)
-    model=SegNet().to(DEVICE)
+    model=UNet2_se_Atten_Trans(3,4).to(DEVICE)
+    #model=SegNet().to(DEVICE)
+    #model=UNet2_Atten_Trans().to(DEVICE)
+    #model=UNet2_se(BasicBlock, [2, 2, 2, 2], num_classes=4, planes=32, spp_planes=128, head_planes=64, augment=False).to(DEVICE)
     PrintModelInfo(model)
     """Pretrain"""
     if Pretrain:
@@ -105,6 +110,7 @@ def main():
                                            % (epoch_index,(sum_test_accuarcy/(step+1))*100, loss_sum/(step+1), current_lr))
         """ validation """
         sum_accuarcy=0
+        sum_iou=0
         model.eval()
         with torch.no_grad():
             validation_iterator = tqdm.tqdm(dataloader_val, initial=0,desc="Iter", disable=False)
@@ -113,8 +119,10 @@ def main():
                 output=model(image)
                 output = output.reshape(output.shape[0],4,256,256)
                 accuarcy=CaculateAcc(output,label)
+                iou=CalculateMiou(output,label,output.shape[1])
                 sum_accuarcy=sum_accuarcy+ accuarcy
-                validation_iterator.set_description('ValAcc= %3.3f %%' % (sum_accuarcy*100/(i+1)))
+                sum_iou=sum_iou+iou
+                validation_iterator.set_description('ValAcc= %3.3f %%,miou= %3.3f ' % (sum_accuarcy*100/(i+1),sum_iou/(i+1)))
         
         if sum_accuarcy/(i+1) > best_accuarcy:
             best_accuarcy = sum_accuarcy/(i+1)
