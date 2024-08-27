@@ -136,48 +136,24 @@ def CaculateAcc(predictions, labels):
     return accuracy
 
 def CalculateMiou(predictions, labels, num_classes):
-    """
-    计算语义分割的 mIoU（mean Intersection over Union）
-
-    参数:
-    - predictions (Tensor): 模型输出，形状为 [batch_size, num_classes, height, width]
-    - labels (Tensor): 真实标签，形状为 [batch_size, num_classes, height, width] (one-hot 编码)
-    - num_classes (int): 类别总数
-
-    返回:
-    - miou (float): mean IoU，取值范围 [0, 1]
-    """
-    # 确保 predictions 和 labels 都在相同的设备上
     device = predictions.device
     labels = labels.to(device)
-
     if predictions.dim() != 4:
         raise ValueError(f"predictions 的维度应该是 4，但实际是 {predictions.dim()}")
     if labels.dim() != 4:
         raise ValueError(f"labels 的维度应该是 4，但实际是 {labels.dim()}")
-
-    # 将 predictions 转换为类别标签
     _, predicted = torch.max(predictions, dim=1)  # predicted 的形状为 [batch_size, height, width]
-
-    # 将 one-hot 编码的 labels 转换为类别标签
     labels = torch.argmax(labels, dim=1)  # labels 的形状为 [batch_size, height, width]
-
-    # 计算每个类别的 IoU
     ious = []
     for cls in range(num_classes):
-        # 计算每个类别的 Intersection 和 Union
         intersection = ((predicted == cls) & (labels == cls)).sum().item()
         union = ((predicted == cls) | (labels == cls)).sum().item()
-
-        # 避免除以 0 的情况
         if union == 0:
-            iou = float('nan')  # 类别在预测和标签中都不存在
+            iou = float('nan')
         else:
             iou = intersection / union
 
         ious.append(iou)
-
-    # 计算 mean IoU（忽略 NaN）
     ious = [iou for iou in ious if not torch.isnan(torch.tensor(iou))]
     miou = sum(ious) / len(ious) if ious else float('nan')
 
