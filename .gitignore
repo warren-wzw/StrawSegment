@@ -1,0 +1,11 @@
+dataset/*
+output/*
+pyqt/*
+delete.py
+extractedCode.txt
+record.txt
+model/SmatUnet.py
+model/DDRNet.py
+model/GhostNet.py
+model/SegNet.py
+model/ShuffleNet.py
