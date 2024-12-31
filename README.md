@@ -8,6 +8,15 @@ This repository contains the source code for our paper:
 * It replaces traditional convolutions with depthwise separable convolutions to reduce the model’s computational complexity and improve inference speed;
 * It substitutes the bottleneck layer with a Transformer encoder to leverage the global modeling capabilities of Transformers, allowing the model to better understand contextual information within the image.
 
+| Model           | PA(%)↑ | mIoU(%)↑ | Speed(ms)↓ | Size(MB) |
+|-----------------|--------|----------|------------|-----------|
+| Unet            | 95.56  | 86.8     | 5.11       | 118.76    |
+| SegNET          | 94.554 | 84.8     | 4.26       | 112.325   |
+| DDRNet          | 87.655 | 71.8     | 2.62       | 21.7247   |
+| SmaAt-UNet      | 93.713 | 83.0     | 2.66       | 15.3824   |
+| Our model-large | 96.309 | 89       | 5.45       | 129.69    |
+| Our model-small | 95.359 | 86.6     | 3.44       | 31.176    |
+
 ## Model Architecture
 ![](./images/1.png)
 
