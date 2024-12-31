@@ -1,4 +1,5 @@
 # Introduce
+This repository contains the source code for our paper:
 [U-Net Semantic Segmentation-Based Calorific Value Estimation of Straw Multifuels for Combined Heat and Power Generation Processes](https://www.mdpi.com/1996-1073/17/20/5143)
 
 ## Functions
@@ -9,7 +10,7 @@
 ## Model Architecture
 ![](./images/1.png)
 
-## Result
+## Results
 ![](./images/2.png)
 ## Env set
 * cuda               11.8
