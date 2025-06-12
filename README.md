@@ -31,3 +31,17 @@ This repository contains the source code for our paper:
 ## About author
 * warren@伟
 * Blog：[CSDN](https://blog.csdn.net/warren103098?type=blog)
+
+## If this work is helpful to you, please cite it as：
+```
+@article{li2024u,
+  title={U-Net Semantic Segmentation-Based Calorific Value Estimation of Straw Multifuels for Combined Heat and Power Generation Processes},
+  author={Li, Lianming and Wang, Zhiwei and He, Defeng},
+  journal={Energies},
+  volume={17},
+  number={20},
+  pages={5143},
+  year={2024},
+  publisher={MDPI}
+}
+```

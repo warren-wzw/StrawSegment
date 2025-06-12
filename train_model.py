@@ -54,9 +54,9 @@ def CreateDataloader(image_path,label_path,cached_file):
 def main():
     global_step=0
     """Define Model"""
-    #model=UNet2_se_Atten_Trans(3,4).to(DEVICE)
+    model=UNet2_se_Atten_Trans(3,4).to(DEVICE)
     #model=SmaAt_UNet(3,4).to(DEVICE)
-    model=SegNet().to(DEVICE)
+    #model=SegNet().to(DEVICE)
     #model=UNet2_Atten_Trans().to(DEVICE)
     #model=DualResNet(BasicBlock, [2, 2, 2, 2], num_classes=4, planes=32, spp_planes=128, head_planes=64, augment=False).to(DEVICE)
     PrintModelInfo(model)

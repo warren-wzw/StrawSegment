@@ -854,7 +854,7 @@ class UNet2_se_Atten(nn.Module):
 
 class UNet2_se_Atten_Trans(nn.Module):
     def __init__(
-            self, in_channels=3, out_channels=4, features=[64, 128, 256, 512],
+            self, in_channels=3, out_channels=10, features=[64, 128, 256, 512],
     ):
         super(UNet2_se_Atten_Trans, self).__init__()
         self.ups = nn.ModuleList()
