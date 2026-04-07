@@ -29,7 +29,7 @@ This repository contains the source code for our paper:
 * Detail please reference requierment.txt
 
 ## About author
-* warren@伟
+* HomePage: [WANG Zhiwei](https://warren-wzw.github.io/HomePage/)
 * Blog：[CSDN](https://blog.csdn.net/warren103098?type=blog)
 
 ## If this work is helpful to you, please cite it as：
